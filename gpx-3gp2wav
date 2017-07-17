@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Convert 3gp to wav in gpx files, since JOSM doesn't support them
+# https://josm.openstreetmap.de/ticket/11017
+#
+# Copyright (C) 2017 Nelson A. de Oliveira <naoliv@gmail.com>
+
+for i in *.gpx; do
+	sed -i 's/.3gp</.wav</g;s/.3gp\"/.wav\"/g' "$i"
+done
+
+for i in *.3gp; do
+	ffmpeg -loglevel quiet -i "$i" `basename "$i" .3gp`.wav
+	rm "$i"
+done
