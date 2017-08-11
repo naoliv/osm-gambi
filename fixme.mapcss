@@ -1,0 +1,9 @@
+/* um tipo de TODO pessoal, enquanto edito */
+node[FIXME=bla],
+node[FIXME=har],
+node[har=har] {
+	symbol-shape: pentagon;
+	symbol-stroke-color: red;
+	symbol-fill-color: yellow;
+	symbol-size: +8;
+}
