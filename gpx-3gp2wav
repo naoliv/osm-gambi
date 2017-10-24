@@ -7,9 +7,15 @@
 
 for i in *.gpx; do
 	sed -i 's/.3gp</.wav</g;s/.3gp\"/.wav\"/g' "$i"
+	sed -i 's/.3gpp</.wav</g;s/.3gpp\"/.wav\"/g' "$i"
 done
 
 for i in *.3gp; do
 	ffmpeg -loglevel quiet -i "$i" `basename "$i" .3gp`.wav
-	rm "$i"
+	rm -f "$i"
+done
+
+for i in *.3gpp; do
+	ffmpeg -loglevel quiet -i "$i" `basename "$i" .3gpp`.wav
+	rm -f "$i"
 done
