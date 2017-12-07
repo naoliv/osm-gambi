@@ -1,0 +1,103 @@
+#!/usr/bin/python
+#-*- coding: utf-8 -*-
+
+# bot para ficar no #osm-br capturando novos usuários e enviando mensagem de boas vindas
+
+
+import sys
+import socket
+import string
+import re
+import osmapi
+from time import sleep
+
+def envia(changeset):
+    try:
+        api = osmapi.OsmApi(api = "https://api.openstreetmap.org", username = "usuario", password = "senha")
+    except:
+        print "ERRO CONEXAO:"
+        print api
+        print "---"
+    mensagem = """Bem-vindo(a) ao OpenStreetMap e parabéns pela sua primeira edição! :-)
+
+Se você está mapeando por causa do Pokémon, dê uma olhada em https://blog.openstreetmap.org/2017/12/01/dicas-para-novos-mapeadores-pokemon-go/?lang=pt-pt
+
+Também temos um portal brasileiro sobre o OpenStreetMap, com várias informações úteis em https://wiki.openstreetmap.org/wiki/Brasil
+
+Enquanto você está se acostumando com o OpenStreetMap, é recomendado que sempre pergunte aos usuários mais experientes antes de remover ou modificar objetos do mapa, especialmente aqueles que são aparentemente "estranhos" ou "fora do lugar".
+
+Além disso, pedimos que não copie dados de mapas proprietários (como nomes de ruas do Google Maps, por exemplo) e que mapeie apenas o que existe na realidade.
+
+Se tiver qualquer tipo de dúvida você pode entrar em contato com a comunidade brasileira através de algum dos canais disponíveis em https://wiki.openstreetmap.org/wiki/Pt:Contact
+O canal "Comunidade" do Telegram costuma ser o mais movimentado.
+
+Abraço e boa diversão com suas edições!
+"""
+    req = {}
+    try:
+        req = api.ChangesetComment(changeset, mensagem)
+    except:
+        print "ERRO ENVIO:"
+        #FIXME isso na verdade não imprime o erro; precisa ver algum dia
+        print req
+        print "---"
+
+HOST = "irc.oftc.net"
+PORT = 6667
+NICK = "viloan"
+REALNAME = "naoliv's bot"
+CHANNEL = "#osm-br"
+readbuffer = ""
+
+def conecta():
+    con = socket.socket()
+    e = None
+    while True:
+        try:
+            con.connect((HOST, PORT))
+        except Exception, e:
+            print e
+            con.shutdown(2)
+            sleep(60)
+        if e == None:
+            break
+    con.send("NICK %s\r\n" % NICK)
+    con.send("USER viloan 0 * :%s\r\n" % REALNAME)
+    con.send(bytes("JOIN %s\r\n") % CHANNEL);
+    return con
+
+s = conecta()
+while True:
+    readbuffer = readbuffer + s.recv(2048)
+    temp = string.split(readbuffer, "\n")
+    readbuffer = temp.pop( )
+
+    for line in temp:
+        vet = line.rstrip().split()
+
+        if "ERROR" in line:
+            print line
+            print vet[0]
+
+        if vet[0] == "ERROR" or "KICK %s %s" % (CHANNEL, NICK) in line:
+            try:
+                s.shutdown(2)
+            except:
+                pass
+            sleep(10)
+            s.close()
+            sleep(10)
+            s = conecta()
+            continue
+
+        if vet[0] == "PING":
+            s.send("PONG %s\r\n" % vet[1])
+            continue
+
+        if vet[1] == "PRIVMSG" and vet[3].startswith(":%s" % NICK) and 'osmbot-test' not in vet[0]:
+            s.send("PRIVMSG " + CHANNEL + ' :%s: "Quanto a mim, tudo que eu sei é que eu não sei nada"; pergunte ao naoliv\r\n' % vet[0].split("!")[0].replace(":",""))
+            continue
+
+        temp = re.findall(':osmbot-test.* :.* just started editing .* with changeset http://.*/([0-9]+)', line)
+        if len(temp) > 0:
+            envia(temp[0].strip())
