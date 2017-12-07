@@ -28,7 +28,7 @@ for changeset in qtd:
         mensagem += "uma proibição "
     else:
         mensagem += "%d proibições " % qtd.get(changeset)
-    mensagem +="de retorno onde a origem e o destino são iguais (ou seja, você falou que é proibido fazer um retorno na própria rua). Com algumas poucas exceções, criar este tipo de proibição de retorno na própria rua não é correto e nem necessário. Evite criar este tipo de proibição. Em caso de dúvida, entre em contato com a comunidade através de algum dos canais disponíveis em https://wiki.openstreetmap.org/wiki/Pt:Contact"
+    mensagem +="de retorno onde a origem e o destino são iguais (ou seja, você falou que é proibido fazer um retorno na própria rua). Com algumas poucas exceções, criar este tipo de proibição de retorno na própria rua não é correto e nem necessário. Evite criar este tipo de proibição, se possível. Esta mensagem é semi-automática e pode ser que você receba/recebeu outras mensagens parecidas em outras edições suas. Não há necessidade de se preocupar de ter feito algo errado. Em caso de dúvida, você pode entrar em contato com a comunidade brasileira através de algum dos canais disponíveis em https://wiki.openstreetmap.org/wiki/Pt:Contact ou responder a mensagem por aqui mesmo. Abraço!"
 
     api = osmapi.OsmApi(api = "https://api.openstreetmap.org", username = "usuario", password = "senha")
     print "ENVIANDO %s" % changeset
