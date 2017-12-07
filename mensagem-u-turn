@@ -1,0 +1,39 @@
+#!/usr/bin/python
+#-*- coding: utf-8 -*-
+#
+# Envia mensagem para quem adicionou no_u_turn na mesma via (to=from)
+# Copyright (C) 2017 Nelson A. de Oliveira <naoliv@gmail.com>
+
+import re
+import osmapi
+from time import sleep
+
+# selecionar as restrições com to=from no JOSM, Ctrl+i e salvar o texto em 'lista'
+arq = open('lista', 'r')
+dados = ''.join(arq.readlines())
+
+regex = re.compile("  Editado por: (.*)\n  Versão: 1\n  No changeset: ([0-9]+)", re.MULTILINE)
+
+qtd = {}
+user = {}
+
+for match in regex.finditer(dados):
+    nome, changeset = match.groups()
+    qtd[changeset] = qtd.get(changeset, 0) + 1
+    user[changeset] = nome.split()[0]
+
+for changeset in qtd:
+    mensagem = "Olá, %s.\nNesta sua edição você criou " % user.get(changeset)
+    if qtd.get(changeset) == 1:
+        mensagem += "uma proibição "
+    else:
+        mensagem += "%d proibições " % qtd.get(changeset)
+    mensagem +="de retorno onde a origem e o destino são iguais (ou seja, você falou que é proibido fazer um retorno na própria rua). Com algumas poucas exceções, criar este tipo de proibição de retorno na própria rua não é correto e nem necessário. Evite criar este tipo de proibição. Em caso de dúvida, entre em contato com a comunidade através de algum dos canais disponíveis em https://wiki.openstreetmap.org/wiki/Pt:Contact"
+
+    api = osmapi.OsmApi(api = "https://api.openstreetmap.org", username = "usuario", password = "senha")
+    print "ENVIANDO %s" % changeset
+    try:
+        req = api.ChangesetComment(changeset, mensagem)
+    except:
+        print "ERRO: %s" % changeset
+    sleep(1)
