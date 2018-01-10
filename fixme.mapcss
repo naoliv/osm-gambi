@@ -1,10 +1,22 @@
 /* um tipo de TODO pessoal, enquanto edito */
-node[FIXME=bla],
-node[FIXME=har],
-node[HAR=HAR],
-node[har=har] {
+node[FIXME = bla],
+node[FIXME = har],
+node[HAR = HAR],
+node[har = har],
+node[bla = bla] {
 	symbol-shape: pentagon;
 	symbol-stroke-color: red;
 	symbol-fill-color: yellow;
-	symbol-size: +8;
+	symbol-size: 10;
+}
+
+way[FIXME = bla],
+way[FIXME = har],
+way[HAR = HAR],
+way[har = har],
+way[bla = bla] {
+	color: red;
+	dashes: 10;
+	dashes-background-color: yellow;
+	width: 10;
 }
