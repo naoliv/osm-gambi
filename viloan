@@ -3,7 +3,6 @@
 
 # bot para ficar no #osm-br capturando novos usuários e enviando mensagem de boas vindas
 
-
 import sys
 import socket
 import string
@@ -20,13 +19,13 @@ def envia(changeset):
         print "---"
     mensagem = """Bem-vindo(a) ao OpenStreetMap e parabéns pela sua primeira edição! :-)
 
-Se você está mapeando por causa do Pokémon, dê uma olhada em https://blog.openstreetmap.org/2017/12/01/dicas-para-novos-mapeadores-pokemon-go/?lang=pt-pt
-
-Também temos um portal brasileiro sobre o OpenStreetMap, com várias informações úteis em https://wiki.openstreetmap.org/wiki/Brasil
+Temos um portal brasileiro sobre o OpenStreetMap, com várias informações úteis em https://wiki.openstreetmap.org/wiki/Brasil
 
 Enquanto você está se acostumando com o OpenStreetMap, é recomendado que sempre pergunte aos usuários mais experientes antes de remover ou modificar objetos do mapa, especialmente aqueles que são aparentemente "estranhos" ou "fora do lugar".
 
 Além disso, pedimos que não copie dados de mapas proprietários (como nomes de ruas do Google Maps, por exemplo) e que mapeie apenas o que existe na realidade.
+
+Se você está mapeando por causa do Pokémon, dê uma olhada em https://blog.openstreetmap.org/2017/12/01/dicas-para-novos-mapeadores-pokemon-go/?lang=pt-pt
 
 Se tiver qualquer tipo de dúvida você pode entrar em contato com a comunidade brasileira através de algum dos canais disponíveis em https://wiki.openstreetmap.org/wiki/Pt:Contact
 O canal "Comunidade" do Telegram costuma ser o mais movimentado.
