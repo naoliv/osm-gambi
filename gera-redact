@@ -1,0 +1,35 @@
+#!/usr/bin/python3
+
+# baixar o changeset que contém a remoção dos nomes e executar a gambi para dar redact depois
+
+import xml.etree.ElementTree as ET
+import requests
+
+tree = ET.parse('download')
+root = tree.getroot()
+
+api = 'https://api.openstreetmap.org'
+
+ways = []
+
+for child in root.findall('./modify/way'):
+    for i in range(int(child.attrib['version']) - 1, 0, -1):
+        url = api + '/api/0.6/way/' + child.attrib['id'] + '/' + str(i)
+        r = requests.get(url)
+        if r.status_code != 200:
+            print('ERRO: ' + url)
+            print(r.text)
+            continue
+
+        xml = ET.fromstring(r.text)
+        for n in xml.iter('tag'):
+            if n.get('k') == 'name':
+                # XXX trocar o número do redaction
+                print('./redaction.pl apply 6 way %s %i' % (child.attrib['id'], i))
+                ways.append(child.attrib['id'])
+                break
+
+ways = list(set(ways))
+ways.sort()
+
+print('\nfor i in %s; do firefox --private-window "%s/way/$i/history"; done' % (' '.join(ways), api))
