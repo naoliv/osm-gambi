@@ -1,5 +1,9 @@
 # Gambiarras relacionadas com OSM, de uso pessoal
 
+## gera-redact
+Para quando precisar dar redact apenas em nomes de ruas  
+Baixar o changeset removendo o nome das ruas, executar a gambi, verificar a saída e depois executar os comandos
+
 ## fixme.mapcss
 Você não vai usar isso  
 Serve apenas para dar highlight em algumas tags que uso temporariamente durante a edição
