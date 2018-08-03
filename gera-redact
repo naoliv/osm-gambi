@@ -26,10 +26,8 @@ for child in root.findall('./modify/way'):
             if n.get('k') == 'name':
                 # XXX trocar o número do redaction
                 print('./redaction.pl apply 6 way %s %i' % (child.attrib['id'], i))
-                ways.append(child.attrib['id'])
+                if ways.count(child.attrib['id']) == 0:
+                    ways.append(child.attrib['id'])
                 break
-
-ways = list(set(ways))
-ways.sort()
 
 print('\nfor i in %s; do firefox --private-window "%s/way/$i/history"; done' % (' '.join(ways), api))
