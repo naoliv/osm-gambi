@@ -1,0 +1,34 @@
+
+
+/* todos os estados em vermelho */
+relation[admin_level=4] {
+        z-index: 0;
+        fill-color: red;
+        fill-opacity: 0.3;
+}
+
+/* distritos em verde, com prioridade de renderização maior (no topo) */
+relation[admin_level=9] {
+        z-index: 1;
+        fill-color: green;
+        fill-opacity: 0.6;
+}
+
+/* esconde os caminhos */
+way  {
+        fill-color: black;
+        width: 0
+}
+
+/* esconde todos os nós */
+node {
+        icon-opacity: 0;
+        symbol-size: 1;
+        symbol-stroke-color: orange;
+        text: "";
+}
+
+*[NM_DISTRIT] {
+	z-index: 2;
+	fill-color: yellow;
+}
