@@ -1,0 +1,17 @@
+meta
+{
+  title: "Regras locais";
+  version: "1";
+  author: "naoliv";
+  watch-modified: true;
+}
+
+*[surface = a] {
+	throwError: tr("superfície incompleta {0}", "{0.tag}");
+	fixAdd: "surface=asphalt";
+}
+
+*[surface = u] {
+	throwError: tr("superfície incompleta {0}", "{0.tag}");
+	fixAdd: "surface=unpaved";
+}
