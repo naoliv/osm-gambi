@@ -1,0 +1,103 @@
+#!/usr/bin/python3
+#-*- coding: utf-8 -*-
+
+import sys
+
+try:
+    import phonenumbers
+except:
+    sys.exit('Instalar python3-phonenumbers')
+
+import xml.etree.ElementTree as ET
+
+if len(sys.argv) != 3:
+    sys.exit('Uso: %s <entrada.osm> <saida.osm>' % sys.argv[0])
+
+entrada = sys.argv[1]
+saida = sys.argv[2]
+
+try:
+    tree = ET.parse(entrada)
+except Exception as err:
+    sys.exit('Erro ao ler o arquivo \'%s\':\n%s' % (entrada, err))
+
+root = tree.getroot()
+
+for objeto in root:
+    has_cphone = False
+    has_phone = False
+    has_cfax = False
+    has_fax = False
+    deu_match = False
+    modified = False
+    has_fixme = None
+
+    for i in objeto.findall('tag'):
+        if i.attrib['k'] == 'contact:phone':
+            has_phone = True
+        elif i.attrib['k'] == 'phone':
+            has_cphone = True
+        elif i.attrib['k'] == 'contact:fax':
+            has_cfax = True
+        elif i.attrib['k'] == 'fax':
+            has_fax = True
+        elif i.attrib['k'] == 'fixme':
+            has_fixme = i.attrib['v']
+            continue
+        else:
+            continue
+
+        num = []
+        deumatch = False
+        novo = i.attrib['v']
+
+        # números de emergência não devem ser mapeados e são removidos
+        if phonenumbers.is_emergency_number(i.attrib['v'], 'BR'):
+            objeto.remove(i)
+            objeto.set('action', 'modify')
+            deu_match = True
+            modified = True
+            continue
+
+        for match in phonenumbers.PhoneNumberMatcher(i.attrib['v'], "BR"):
+            deu_match = True
+
+            # 0800 formatados apenas com o padrão nacional
+            if phonenumbers.number_type(match.number) == phonenumbers.PhoneNumberType.TOLL_FREE:
+                num.append(phonenumbers.format_number(match.number, phonenumbers.PhoneNumberFormat.NATIONAL))
+                modified = True
+            else:
+                num.append(phonenumbers.format_number(match.number, phonenumbers.PhoneNumberFormat.INTERNATIONAL))
+                modified = True
+
+        if not deu_match:
+            objeto.set('action', 'modify')
+
+            if has_fixme:
+                #TODO
+                pass
+            else:
+                attrib = {'k': 'fixme', 'v': 'número de telefone incorreto'}
+                element = objeto.makeelement('tag', attrib)
+                objeto.append(element)
+
+        novo = ';'.join(num)
+        if novo != i.attrib['v'] and deu_match:
+            objeto.set('action', 'modify')
+            i.set('v', novo)
+
+    if has_cphone and has_phone:
+        #TODO
+        pass
+
+    if has_cfax and has_fax:
+        #TODO
+        pass
+
+    if modified:
+        root.set('upload', 'false')
+
+try:
+    tree.write(saida)
+except Exception as err:
+    sys.exit('Erro ao gravar o arquivo \'%s\':\n%s' % (saida, err))
