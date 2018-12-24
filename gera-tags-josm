@@ -1,0 +1,51 @@
+#!/usr/bin/python3
+#-*- coding: utf-8 -*-
+
+from xml.dom import minidom
+import xml.etree.ElementTree as ET
+import sys
+import os
+import json
+import requests
+
+if len(sys.argv) != 2:
+    sys.exit('Uso: %s <diretorio de saída>' % sys.argv[0])
+
+if not os.path.isdir(sys.argv[1]):
+    sys.exit('ERRO - Diretório inexistente: %s' % sys.argv[1])
+
+keys = ['amenity', 'craft', 'landuse', 'man_made', 'natural', 'office', 'shop', 'tourism']
+
+for i in keys:
+    url = 'https://taginfo.openstreetmap.org/api/4/key/values?key=%s&filter=all&lang=en&sortname=count&sortorder=desc&page=1&rp=150&qtype=value' % i
+    r = requests.get(url)
+    if r.status_code != 200:
+        print('ERRO: ' + url)
+        sys.exit(r.text)
+
+    root = ET.Element('osm')
+    root.set('version', '0.6')
+    root.set('upload', 'false')
+
+    val = json.loads(r.text)
+
+    num = 1
+    for j in val['data']:
+        noh = ET.SubElement(root, 'node', {'id':str(-num), 'lat':'0.0', 'lon':str('{0:.5f}'.format(num/100000))})
+        tag = ET.SubElement(noh, 'tag', {'k':i, 'v':j['value']})
+        tag = ET.SubElement(noh, 'tag', {'k':'count', 'v':str(j['count'])})
+        tag = ET.SubElement(noh, 'tag', {'k':'in_wiki', 'v':str(j['in_wiki'])})
+        tag = ET.SubElement(noh, 'tag', {'k':'description', 'v':str(j['description'])})
+        num += 1
+
+    try:
+        saida = open('%s/%s.osm' % (sys.argv[1], i), 'w+')
+    except Exception as err:
+        sys.exit('Erro ao abrir o arquivo \'%s.osm\':\n%s' % (i, err))
+
+    xmlstr = minidom.parseString(ET.tostring(root)).toprettyxml(indent='\t')
+    try:
+        with open('%s/%s.osm' % (sys.argv[1], i), 'w+') as saida:
+            saida.write(xmlstr)
+    except Exception as err:
+        sys.exit('Erro ao abrir o arquivo \'%s.osm\':\n%s' % (i, err))
