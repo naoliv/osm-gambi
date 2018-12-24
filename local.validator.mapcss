@@ -15,3 +15,12 @@ meta
 	throwError: tr("superfície incompleta {0}", "{0.tag}");
 	fixAdd: "surface=unpaved";
 }
+
+*[FIXME = bla],
+*[FIXME = har],
+*[HAR = HAR],
+*[har = har],
+*[bla = bla] {
+	throwError: tr("HAR PENDENTE");
+}
+
