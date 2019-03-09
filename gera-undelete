@@ -1,0 +1,20 @@
+#!/bin/sh
+# usar a saída no plugin 'undelete' do JOSM
+
+if [ -z "$1" ]; then
+	echo "Uso: $0 <número do changeset>"
+	exit 1
+fi
+
+tmp=`mktemp -d`
+
+wget --quiet "https://www.openstreetmap.org/api/0.6/changeset/$1/download" -O $tmp/changeset
+
+nods=`fgrep '<delete>' -A 1 $tmp/changeset | fgrep node | awk -F \" '{print "n" $2}' | tr '\n' ' '`
+ways=`fgrep '<delete>' -A 1 $tmp/changeset | fgrep way | awk -F \" '{print "w" $2}' | tr '\n' ' '`
+rels=`fgrep '<delete>' -A 1 $tmp/changeset | fgrep relation | awk -F \" '{print "r" $2}' | tr '\n' ' '`
+
+#TODO fazer opção pra selecionar se só quer restaurar nós, caminhos e/ou relações
+echo "$nods $ways $rels"
+
+rm -rf "$tmp"
