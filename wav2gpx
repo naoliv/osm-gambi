@@ -1,0 +1,62 @@
+#!/usr/bin/python3
+#-*- coding: utf-8 -*-
+
+# para gerar um GPX de waypoints dos arquivos de áudio do osmand
+
+import os
+import glob
+
+ARRAY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_~'
+
+def short_decode(s):
+    slon = 0.0
+    slat = 0.0
+    lonw = 360.0
+    latw = 180.0
+    z = 0
+    z_offset = 0
+
+    for c in s:
+        a = ARRAY.find(c)
+
+        if a == -1:
+            z_offset -= 1
+        else:
+            z += 3
+            mask = 0x20
+            for x in range(3):
+                lonw = lonw / 2
+                latw = latw / 2
+                if (a & mask):
+                    slon += lonw
+                mask = mask >> 1
+                if (a & mask):
+                    slat += latw
+                mask = mask >> 1
+
+    lonw = lonw / 2
+    latw = latw / 2
+    slon += lonw
+    slat += latw
+
+    slon -= 180
+    slat -= 90
+
+    return slat, slon, z - 8 -(z_offset % 3)
+
+if __name__ == '__main__':
+    NAMES = [os.path.basename(x) for x in glob.glob(os.path.join(os.getcwd(), '*.wav'))]
+
+    if NAMES:
+        print("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>")
+        print('<gpx version="1.1" creator="wav2gpx gambi" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">')
+        print('    <metadata>\n    <name>Notas</name>\n  </metadata>')
+
+        for i in NAMES:
+            lat, lon, zoom = short_decode(i.replace('.1.wav', ''))
+            print('  <wpt lat="%s" lon="%s">' % (lat, lon))
+            print('    <name>%s</name>' % i)
+            print('    <link href="%s" />' % i)
+            print('  </wpt>')
+
+        print('</gpx>')
